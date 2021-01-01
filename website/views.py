@@ -7,6 +7,6 @@ def index(request):
     all_apps = MyApp.objects.all()
     context = {
         'my_apps': all_apps,
-        'page': request.path
+        'view_name': request.resolver_match.view_name
     }
     return render(request, 'website/index.html', context)

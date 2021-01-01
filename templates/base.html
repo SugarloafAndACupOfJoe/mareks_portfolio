@@ -22,10 +22,10 @@
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
             <div class="container">
-                {% if page == '/' %}
+                {% if view_name == 'website:index' %}
                     <a class="navbar-brand js-scroll-trigger" href="#page-top">Marek's Portfolio</a>
                 {% else %}
-                    <a class="navbar-brand js-scroll-trigger" href="/">Marek's Portfolio</a>
+                    <a class="navbar-brand js-scroll-trigger" href="{% url 'website:index' %}">Marek's Portfolio</a>
                 {% endif %}
                 <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     Menu
@@ -33,11 +33,11 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
-                        {% if page == '/' %}
+                        {% if view_name == 'website:index' %}
                             <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#portfolio">Portfolio</a></li>
                             <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#about">About</a></li>
                             <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#contact">Contact</a></li>
-                        {% elif '/airpollution/' in page %}
+                        {% elif view_name == 'airpollution:welcome' %}
                             <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#import-form">Import Form</a></li>
                             <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#data-table">Data Table</a></li>
                             <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#data-visuals">Data Visuals</a></li>
