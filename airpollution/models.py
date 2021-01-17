@@ -15,6 +15,7 @@ class Pollutant(models.Model):
 
 class Country(models.Model):
     """Country model for airpollution app"""
+    iso_code = models.CharField(max_length=2, primary_key=True)
     name = models.CharField(max_length=100, unique=True)
     removed = models.BooleanField(default=False)
     longitude = models.FloatField(null=True)
