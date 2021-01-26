@@ -33,6 +33,8 @@ def get_headers_and_units(ws):
     for i in range(ws.max_column):
         column = chr(i + 65)
         header = ws[column][headers_row].value
+        if header is None:
+            break
         header = header.strip().replace('_', '').lower()
 
         # Get units
@@ -42,7 +44,6 @@ def get_headers_and_units(ws):
                 if header[index] == ')':
                     break
                 units += header[index]
-            continue
         elif 'unit' in header:
             units = ws[column][headers_row + 1].value
             continue
