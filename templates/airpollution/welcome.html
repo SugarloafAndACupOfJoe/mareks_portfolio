@@ -4,7 +4,7 @@
     <!-- Upload File Section-->
     <section class="page-section mt-5" id="import-form">
         <div class="container">
-            <!-- Contact Section Heading-->
+            <!-- Heading-->
             <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Upload File</h2>
             <!-- Icon Divider-->
             <div class="divider-custom">
@@ -17,7 +17,7 @@
                 <div class="col-lg-8 mx-auto">
 
                     <form id="upload-file" name="upload-file" enctype="multipart/form-data" method="POST"
-                          action="{% url 'airpollution:upload_file' %}">
+                          action="{% url 'airpollution:airpollution' %}">
                         {% csrf_token %}
                         <div class="control-group">
                             <div class="form-group floating-label-form-group controls mb-0 pb-2">
@@ -46,4 +46,120 @@
             </div>
         </div>
     </section>
+
+    <!-- Table Section-->
+    <section class="page-section mt-5" id="data-table">
+        <div class="container">
+            <!-- Heading-->
+            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Data Table</h2>
+            <!-- Icon Divider-->
+            <div class="divider-custom">
+                <div class="divider-custom-line"></div>
+                <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                <div class="divider-custom-line"></div>
+            </div>
+            <!-- Table-->
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+
+                    <table class="table">
+                        <tr>
+                            <th scope="col">Pollutant</th>
+                            <th scope="col">Country</th>
+                            <th scope="col">Average Pollution Level</th>
+                        </tr>
+                        {% for pollution_name, pollution_data in data.items %}
+                            {% for country_iso, average_pollution in pollution_data.items %}
+                                <tr>
+                                    {% if forloop.first %}
+                                        <th rowspan="{{ pollution_data|length }}" scope="row">{{ pollution_name }}</th>
+                                    {% endif %}
+                                    <td>{{ country_iso }}</td>
+                                    <td>{{ average_pollution|floatformat }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visuals Section-->
+    <section class="page-section mt-5" id="data-visuals">
+        <div class="container">
+            <!-- Heading-->
+            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Data Visuals</h2>
+            <!-- Icon Divider-->
+            <div class="divider-custom">
+                <div class="divider-custom-line"></div>
+                <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                <div class="divider-custom-line"></div>
+            </div>
+            <!-- Visuals-->
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+
+                    {% for pollutant_name, data in visuals_data.items %}
+                        <canvas class="myChart mb-3" width="400" height="400" data-name="{{ pollutant_name }}"
+                                data-labels="{{ data.labels }}" data-data="{{ data.data }}"
+                                data-background="{{ data.background }}"  data-border="{{ data.border }}"></canvas>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+
+            $('.myChart').each(function (i, ctx) {
+                let name = $(ctx).attr('data-name')
+                let labels = $(ctx).attr('data-labels')
+                let data = $(ctx).attr('data-data')
+                let background = $(ctx).attr('data-background')
+                let border = $(ctx).attr('data-border')
+                labels = JSON.parse(labels)
+                data = JSON.parse(data)
+                background = JSON.parse(background)
+                border = JSON.parse(border)
+
+                console.log(name)
+                console.log(labels)
+                console.log(data)
+                console.log(background)
+                console.log(border)
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: name,
+                            data: data,
+                            backgroundColor: background,
+                            borderColor: border,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            })
+
+        })
+    </script>
+
 {% endblock %}

@@ -103,7 +103,12 @@
         <!-- Contact form JS-->
         <script src="{% static 'assets/mail/jqBootstrapValidation.js' %}"></script>
         <script src="{% static 'assets/mail/contact_me.js' %}"></script>
+        <!-- Chart.js-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+
         <!-- Core theme JS-->
         <script src="{% static 'js/scripts.js' %}"></script>
+
+        {% block js %}{% endblock %}
     </body>
 </html>
