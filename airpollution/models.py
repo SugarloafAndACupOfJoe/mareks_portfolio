@@ -5,6 +5,7 @@ class Pollutant(models.Model):
     """Pollution model for airpollution app"""
     name = models.CharField(max_length=10, primary_key=True)
     limit_value = models.SmallIntegerField(null=True)
+    color = models.CharField(max_length=10, default='#000000')
     removed = models.BooleanField(default=False)
 
     def __str__(self):
@@ -18,6 +19,7 @@ class Country(models.Model):
     """Country model for airpollution app"""
     iso_code = models.CharField(max_length=2, primary_key=True)
     name = models.CharField(max_length=100, unique=True)
+    color = models.CharField(max_length=10, default='#000000')
     removed = models.BooleanField(default=False)
     longitude = models.FloatField(null=True)
     latitude = models.FloatField(null=True)
