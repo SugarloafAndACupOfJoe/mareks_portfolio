@@ -17,6 +17,8 @@
         <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+        <!-- DataTables Styling-->
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.23/b-1.6.5/b-flash-1.6.5/fh-3.1.8/sp-1.2.2/datatables.min.css"/>
     </head>
     <body id="page-top">
         <!-- Navigation-->
@@ -108,6 +110,8 @@
 
         <!-- Core theme JS-->
         <script src="{% static 'js/scripts.js' %}"></script>
+        <!-- DataTables JS-->
+        <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.23/b-1.6.5/b-flash-1.6.5/fh-3.1.8/sp-1.2.2/datatables.min.js"></script>
 
         {% block js %}{% endblock %}
     </body>

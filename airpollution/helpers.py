@@ -48,6 +48,8 @@ def get_headers_and_units(ws):
             units = ws[column][headers_row + 1].value
             continue
 
+        units = units if units != 'count' else 'µg/m3'
+
         # Map headers with their indices
         for choice in XLHEADERS.choices:
             if choice in header:

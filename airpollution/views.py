@@ -1,4 +1,4 @@
-from django.db.models import Sum, Q
+from django.db.models import Max, Min, Sum, Q
 from django.http import HttpResponse
 from django.shortcuts import render
 from django import forms
@@ -19,22 +19,30 @@ def airpollution(request):
     if request.method == 'GET':
         table_data = {}
         visuals_data = {}
-        pollutant_list = [pollutant.name for pollutant in Pollutant.objects.all()]
+        pollutant_list = [pollutant for pollutant in Pollutant.objects.all()]
         country_list = [country.iso_code for country in Country.objects.all()]
 
         for pollutant in pollutant_list:
-            table_data[pollutant] = {}
-            visuals_data[pollutant] = {'labels': [], 'data': []}
+            table_data[pollutant.name] = {}
+            visuals_data[pollutant.name] = {'labels': [], 'data': []}
             for country in country_list:
-                total = PollutantEntry.objects\
-                    .aggregate(total=Sum('pollution_level', filter=Q(pollutant__name=pollutant,
-                                                                     country__iso_code=country)))
-                total = total['total']
-                count = PollutantEntry.objects.filter(pollutant__name=pollutant, country__iso_code=country).count()
+                total = PollutantEntry.objects \
+                    .aggregate(total=Sum('pollution_level', filter=Q(pollutant=pollutant,
+                                                                     country__iso_code=country)))['total']
+                minimum = PollutantEntry.objects \
+                    .aggregate(min=Min('pollution_level', filter=Q(pollutant=pollutant,
+                                                                   country__iso_code=country)))['min']
+                maximum = PollutantEntry.objects \
+                    .aggregate(max=Max('pollution_level', filter=Q(pollutant=pollutant,
+                                                                   country__iso_code=country)))['max']
+                count = PollutantEntry.objects.filter(pollutant=pollutant, country__iso_code=country).count()
+                units = PollutantEntry.objects.filter(pollutant=pollutant, country__iso_code=country).first()
+                units = units.units if units else ''
                 if total is not None and count:
-                    table_data[pollutant][country] = total / count
-                    visuals_data[pollutant]['labels'].append(country)
-                    visuals_data[pollutant]['data'].append(total / count)
+                    table_data[pollutant.name][country] = {'avg': total / count, 'min': minimum, 'max': maximum,
+                                                           'limit': pollutant.limit_value, 'units': units}
+                    visuals_data[pollutant.name]['labels'].append(country)
+                    visuals_data[pollutant.name]['data'].append(total / count)
 
         # Post process visual data
         for pollutant_data in visuals_data.values():
@@ -44,11 +52,9 @@ def airpollution(request):
             background_colors = []
             border_colors = []
             for rgb in RGB_tuples:
-                red, green, blue = int(rgb[0]*255), int(rgb[1]*255), int(rgb[2]*255)
+                red, green, blue = int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)
                 background_colors.append(f'rgba({red}, {green}, {blue}, 0.2)')
                 border_colors.append(f'rgba({red}, {green}, {blue}, 1)')
-
-            # background_color = [f'rgba({int(rgb[0]*255)}, {int(rgb[0]*255)}, {int(rgb[0]*255)}, 0.2)' for rgb in RGB_tuples]
 
             pollutant_data['labels'] = json.dumps(pollutant_data['labels'])
             pollutant_data['data'] = json.dumps(pollutant_data['data'])
@@ -72,6 +78,10 @@ def airpollution(request):
                 ws = wb[tab_name]
                 pollutant_name = tab_name.split('_')[0].strip()
                 pollutant = Pollutant.objects.get_or_create(name=pollutant_name)
+                if pollutant[0].limit_value is None:
+                    limit_value = int(ws['A'][2].value.split()[-2])
+                    pollutant[0].limit_value = limit_value
+                    pollutant[0].save()
                 headers_row, headers, units = get_headers_and_units(ws)
 
                 # Save all entries to database
@@ -163,6 +173,48 @@ def temp_country_creator(request):
         'The former Yugoslav Republic of Macedonia': 'MK',
         'Turkey': 'TR',
         'United Kingdom': 'GB',
+    }
+
+    countries2 = {
+        'Albania': ['AL', '#f60a0a'],
+        'Andorra': ['AD', '#2019c0'],
+        'Austria': ['AT', '#a81b1b'],
+        'Belgium': ['BE', '#000000'],
+        'Bosnia and Herzegovina': ['BA', '#ffd200'],
+        'Bulgaria': ['BG', '#468650'],
+        'Croatia': ['HR', '#21248a'],
+        'Cyprus': ['CY', '#ff7a00'],
+        'Czech Republic': ['CZ', '#dfdfdf'],
+        'Denmark': ['DK', '#b60000'],
+        'Estonia': ['EE', '#2f8ebc'],
+        'Finland': ['FI', '#011d92'],
+        'France': ['FR', '#dfdfdf'],
+        'Germany': ['DE', '#e0be1d'],
+        'Greece': ['GR', '#0b66aa'],
+        'Hungary': ['HU', '#295934'],
+        'Iceland': ['IS', '#2933d9'],
+        'Ireland': ['IE', '#00d614'],
+        'Italy': ['IT', '#c30000'],
+        'Kosovo under UNSCR 1244/99': ['XK', '#354dcb'],
+        'Latvia': ['LV', '#762424'],
+        'Lithuania': ['LT', '#ffc000'],
+        'Luxembourg': ['LU', '#6dc0f6'],
+        'Malta': ['MT', '#dfdfdf'],
+        'Montenegro': ['ME', '#a07900'],
+        'Netherlands': ['NL', '#ff6000'],
+        'Norway': ['NO', '#ff0000'],
+        'Poland': ['PL', '#ffbcbc'],
+        'Portugal': ['PT', '#064a00'],
+        'Romania': ['RO', '#201b82'],
+        'Serbia': ['RS', '#3d2269'],
+        'Slovakia': ['SK', '#294bff'],
+        'Slovenia': ['SI', '#ff3333'],
+        'Spain': ['ES', '#f6a900'],
+        'Sweden': ['SE', '#3c73d3'],
+        'Switzerland': ['CH', '#cf3535'],
+        'The former Yugoslav Republic of Macedonia': ['MK', '#ecc615'],
+        'Turkey': ['TR', '#c82727'],
+        'United Kingdom': ['GB', '#071260'],
     }
 
     to_insert = []
