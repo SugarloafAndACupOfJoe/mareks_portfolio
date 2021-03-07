@@ -17,16 +17,18 @@ class ExcelUploadForm(forms.Form):
 def airpollution(request):
     if request.method == 'GET':
         table_data = {}
-        visuals_data = {'Pollution Levels by Pollutant by Country': {
-            'chart_type': 'chart1',
-            'labels': [],
-            'datasets': [
-                {'label': 'Limit',
-                 'backgroundColor': '#3C9C85',
-                 'stack': 'limit',
-                 'data': []}
-            ]
-        }
+        visuals_data = {
+            'Pollution Levels by Pollutant by Country': {
+                'chart_type': 'chart1',
+                'labels': [],
+                'datasets': [
+                    {'label': 'Limit',
+                     'backgroundColor': '#3C9C85',
+                     'stack': 'limit',
+                     'data': []}
+                ]
+            },
+
         }
         pollutant_list = [pollutant for pollutant in Pollutant.objects.all()]
         country_list = [country for country in Country.objects.all()]
@@ -36,7 +38,7 @@ def airpollution(request):
         for pollutant in pollutant_list:
             table_data[pollutant.name] = {}
             visuals_data['Pollution Levels by Pollutant by Country']['labels'].append(pollutant.name)
-            visuals_data['Pollution Levels by Pollutant by Country']['datasets'][0]['data']\
+            visuals_data['Pollution Levels by Pollutant by Country']['datasets'][0]['data'] \
                 .append(pollutant.limit_value)
             for i, country in enumerate(country_list):
                 total = PollutantEntry.objects \
@@ -55,11 +57,10 @@ def airpollution(request):
                     table_data[pollutant.name][country.iso_code] = {'avg': total / count, 'min': minimum,
                                                                     'max': maximum,
                                                                     'limit': pollutant.limit_value, 'units': units}
-                    visuals_data['Pollution Levels by Pollutant by Country']['datasets'][i+1]['data']\
+                    visuals_data['Pollution Levels by Pollutant by Country']['datasets'][i + 1]['data'] \
                         .append(round(total / count, 2))
                 else:
                     visuals_data['Pollution Levels by Pollutant by Country']['datasets'][i + 1]['data'].append(-1)
-
 
         # Post process visual data
         for pollutant_data in visuals_data.values():
