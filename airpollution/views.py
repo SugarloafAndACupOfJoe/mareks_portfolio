@@ -17,14 +17,28 @@ class ExcelUploadForm(forms.Form):
 def airpollution(request):
     if request.method == 'GET':
         table_data = {}
-        visuals_data = {}
+        visuals_data = {'Pollution Levels by Pollutant by Country': {
+            'chart_type': 'chart1',
+            'labels': [],
+            'datasets': [
+                {'label': 'Limit',
+                 'backgroundColor': '#3C9C85',
+                 'stack': 'limit',
+                 'data': []}
+            ]
+        }
+        }
         pollutant_list = [pollutant for pollutant in Pollutant.objects.all()]
         country_list = [country for country in Country.objects.all()]
+        visuals_data['Pollution Levels by Pollutant by Country']['datasets'] += \
+            [{'label': c.name, 'backgroundColor': c.color, 'hidden': 'true', 'data': []} for c in country_list]
 
         for pollutant in pollutant_list:
             table_data[pollutant.name] = {}
-            visuals_data[pollutant.name] = {'labels': [], 'data': [], 'border': []}
-            for country in country_list:
+            visuals_data['Pollution Levels by Pollutant by Country']['labels'].append(pollutant.name)
+            visuals_data['Pollution Levels by Pollutant by Country']['datasets'][0]['data']\
+                .append(pollutant.limit_value)
+            for i, country in enumerate(country_list):
                 total = PollutantEntry.objects \
                     .aggregate(total=Sum('pollution_level', filter=Q(pollutant=pollutant,
                                                                      country=country)))['total']
@@ -38,19 +52,19 @@ def airpollution(request):
                 units = PollutantEntry.objects.filter(pollutant=pollutant, country=country).first()
                 units = units.units if units else ''
                 if total is not None and count:
-                    table_data[pollutant.name][country.iso_code] = {'avg': total / count, 'min': minimum, 'max': maximum,
-                                                           'limit': pollutant.limit_value, 'units': units}
-                    visuals_data[pollutant.name]['labels'].append(country.iso_code)
-                    visuals_data[pollutant.name]['data'].append(total / count)
-                    visuals_data[pollutant.name]['border'].append(country.color)
+                    table_data[pollutant.name][country.iso_code] = {'avg': total / count, 'min': minimum,
+                                                                    'max': maximum,
+                                                                    'limit': pollutant.limit_value, 'units': units}
+                    visuals_data['Pollution Levels by Pollutant by Country']['datasets'][i+1]['data']\
+                        .append(round(total / count, 2))
+                else:
+                    visuals_data['Pollution Levels by Pollutant by Country']['datasets'][i + 1]['data'].append(-1)
+
 
         # Post process visual data
         for pollutant_data in visuals_data.values():
-            background_colors = [color + '50' for color in pollutant_data['border']]
             pollutant_data['labels'] = json.dumps(pollutant_data['labels'])
-            pollutant_data['data'] = json.dumps(pollutant_data['data'])
-            pollutant_data['background'] = json.dumps(background_colors)
-            pollutant_data['border'] = json.dumps(pollutant_data['border'])
+            pollutant_data['datasets'] = json.dumps(pollutant_data['datasets'])
 
         context = {
             'app_name': request.resolver_match.app_name,
