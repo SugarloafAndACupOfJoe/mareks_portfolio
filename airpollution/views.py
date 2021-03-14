@@ -1,5 +1,5 @@
 from django.db.models import Max, Min, Sum, Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django import forms
 import openpyxl
@@ -16,63 +16,9 @@ class ExcelUploadForm(forms.Form):
 
 def airpollution(request):
     if request.method == 'GET':
-        table_data = {}
-        visuals_data = {
-            'Pollution Levels by Pollutant by Country': {
-                'chart_type': 'chart1',
-                'labels': [],
-                'datasets': [
-                    {'label': 'Limit',
-                     'backgroundColor': '#3C9C85',
-                     'stack': 'limit',
-                     'data': []}
-                ]
-            },
-
-        }
-        pollutant_list = [pollutant for pollutant in Pollutant.objects.all()]
-        country_list = [country for country in Country.objects.all()]
-        visuals_data['Pollution Levels by Pollutant by Country']['datasets'] += \
-            [{'label': c.name, 'backgroundColor': c.color, 'hidden': 'true', 'data': []} for c in country_list]
-
-        for pollutant in pollutant_list:
-            table_data[pollutant.name] = {}
-            visuals_data['Pollution Levels by Pollutant by Country']['labels'].append(pollutant.name)
-            visuals_data['Pollution Levels by Pollutant by Country']['datasets'][0]['data'] \
-                .append(pollutant.limit_value)
-            for i, country in enumerate(country_list):
-                total = PollutantEntry.objects \
-                    .aggregate(total=Sum('pollution_level', filter=Q(pollutant=pollutant,
-                                                                     country=country)))['total']
-                minimum = PollutantEntry.objects \
-                    .aggregate(min=Min('pollution_level', filter=Q(pollutant=pollutant,
-                                                                   country=country)))['min']
-                maximum = PollutantEntry.objects \
-                    .aggregate(max=Max('pollution_level', filter=Q(pollutant=pollutant,
-                                                                   country=country)))['max']
-                count = PollutantEntry.objects.filter(pollutant=pollutant, country=country).count()
-                units = PollutantEntry.objects.filter(pollutant=pollutant, country=country).first()
-                units = units.units if units else ''
-                if total is not None and count:
-                    table_data[pollutant.name][country.iso_code] = {'avg': total / count, 'min': minimum,
-                                                                    'max': maximum,
-                                                                    'limit': pollutant.limit_value, 'units': units}
-                    visuals_data['Pollution Levels by Pollutant by Country']['datasets'][i + 1]['data'] \
-                        .append(round(total / count, 2))
-                else:
-                    visuals_data['Pollution Levels by Pollutant by Country']['datasets'][i + 1]['data'].append(-1)
-
-        # Post process visual data
-        for pollutant_data in visuals_data.values():
-            pollutant_data['labels'] = json.dumps(pollutant_data['labels'])
-            pollutant_data['datasets'] = json.dumps(pollutant_data['datasets'])
-
         context = {
             'app_name': request.resolver_match.app_name,
-            'data': table_data,
-            'visuals_data': visuals_data
         }
-
     elif request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -131,11 +77,74 @@ def airpollution(request):
             'app_name': request.resolver_match.app_name,
             'message_success': 'File uploaded successfully!'
         }
-
-    else:  # Request method not POST
+    else:
         return HttpResponse('This view only handles GET and POST requests')
 
     return render(request, 'airpollution/welcome.html', context)
+
+
+def airpollution_table_data(request):
+    table_data = {}
+    pollutant_list = [pollutant for pollutant in Pollutant.objects.all()]
+    country_list = [country for country in Country.objects.all()]
+    for pollutant in pollutant_list:
+        table_data[pollutant.name] = {}
+
+        for i, country in enumerate(country_list):
+            total = PollutantEntry.objects \
+                .aggregate(total=Sum('pollution_level', filter=Q(pollutant=pollutant,
+                                                                 country=country)))['total']
+            minimum = PollutantEntry.objects \
+                .aggregate(min=Min('pollution_level', filter=Q(pollutant=pollutant,
+                                                               country=country)))['min']
+            maximum = PollutantEntry.objects \
+                .aggregate(max=Max('pollution_level', filter=Q(pollutant=pollutant,
+                                                               country=country)))['max']
+            count = PollutantEntry.objects.filter(pollutant=pollutant, country=country).count()
+            units = PollutantEntry.objects.filter(pollutant=pollutant, country=country).first()
+            units = units.units if units else ''
+            if total is not None and count:
+                table_data[pollutant.name][country.iso_code] = {'avg': total / count, 'min': minimum,
+                                                                'max': maximum,
+                                                                'limit': pollutant.limit_value, 'units': units}
+    return JsonResponse(table_data)
+
+
+def airpollution_visual_data1(request):
+    visuals_data = {
+        'Pollution Levels by Pollutant by Country': {
+            'chart_type': 'chart1',
+            'labels': [],
+            'datasets': [
+                {'label': 'Limit',
+                 'backgroundColor': '#3C9C85',
+                 'stack': 'limit',
+                 'data': []}
+            ]
+        },
+
+    }
+    pollutant_list = [pollutant for pollutant in Pollutant.objects.all()]
+    country_list = [country for country in Country.objects.all()]
+    visuals_data['Pollution Levels by Pollutant by Country']['datasets'] += \
+        [{'label': c.name, 'backgroundColor': c.color, 'hidden': 'true', 'data': []} for c in country_list]
+
+    for pollutant in pollutant_list:
+        visuals_data['Pollution Levels by Pollutant by Country']['labels'].append(pollutant.name)
+        visuals_data['Pollution Levels by Pollutant by Country']['datasets'][0]['data'] \
+            .append(pollutant.limit_value)
+        for i, country in enumerate(country_list):
+            total = PollutantEntry.objects \
+                .aggregate(total=Sum('pollution_level', filter=Q(pollutant=pollutant,
+                                                                 country=country)))['total']
+
+            count = PollutantEntry.objects.filter(pollutant=pollutant, country=country).count()
+            if total is not None and count:
+                visuals_data['Pollution Levels by Pollutant by Country']['datasets'][i + 1]['data'] \
+                    .append(round(total / count, 2))
+            else:
+                visuals_data['Pollution Levels by Pollutant by Country']['datasets'][i + 1]['data'].append(-1)
+    return JsonResponse(visuals_data)
 
 
 def temp_country_creator(request):

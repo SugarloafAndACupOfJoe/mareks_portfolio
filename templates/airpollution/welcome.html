@@ -74,20 +74,8 @@
                             <th scope="col">Units</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        {% for pollution_name, pollution_data in data.items %}
-                            {% for country_iso, data in pollution_data.items %}
-                                <tr>
-                                    <th scope="row">{{ pollution_name }}</th>
-                                    <td>{{ country_iso }}</td>
-                                    <td>{{ data.avg|floatformat }}</td>
-                                    <td>{{ data.min|floatformat }}</td>
-                                    <td>{{ data.max|floatformat }}</td>
-                                    <td>{{ data.limit }}</td>
-                                    <td>{{ data.units }}</td>
-                                </tr>
-                            {% endfor %}
-                        {% endfor %}
+                        <tbody id="table-body">
+
                         </tbody>
                     </table>
 
@@ -109,14 +97,7 @@
             </div>
             <!-- Visuals-->
             <div class="row">
-                <div class="col-lg-8 mx-auto">
-
-                    {% for chart_name, data in visuals_data.items %}
-                        <canvas class="{{ data.chart_type }} mb-3" width="400" height="350" data-name="{{ chart_name }}"
-                                data-labels="{{ data.labels }}" data-data="{{ data.data }}"
-                                data-datasets="{{ data.datasets }}"
-                                data-background="{{ data.background }}" data-border="{{ data.border }}"></canvas>
-                    {% endfor %}
+                <div id="visuals-container" class="col-lg-8 mx-auto">
 
                 </div>
             </div>
@@ -128,42 +109,59 @@
 
 {% block js %}
     <script>
+        let render_char1 = function (canvas, name, labels, datasets) {
+            myChart = new Chart(canvas, {
+                type: 'bar',
+                data: {'labels': labels, 'datasets': datasets},
+                options: {
+                    title: {
+                        display: true,
+                        text: name
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                        position: 'nearest'
+                    },
+                    responsive: true,
+                    scales: {
+                        xAxes: [{
+                            stacked: true,
+                        }],
+                        yAxes: [{
+                            stacked: true
+                        }]
+                    }
+                }
+            });
+        }
+
         $(document).ready(function () {
 
-            $('.chart1').each(function (i, ctx) {
-                let name = $(ctx).attr('data-name')
-                let labels = $(ctx).attr('data-labels')
-                let datasets = $(ctx).attr('data-datasets')
-                labels = JSON.parse(labels)
-                datasets = JSON.parse(datasets)
-
-                myChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {'labels': labels, 'datasets': datasets},
-                    options: {
-                        title: {
-                            display: true,
-                            text: name
-                        },
-                        tooltips: {
-                            mode: 'index',
-                            intersect: false,
-                            position: 'nearest'
-                        },
-                        responsive: true,
-                        scales: {
-                            xAxes: [{
-                                stacked: true,
-                            }],
-                            yAxes: [{
-                                stacked: true
-                            }]
-                        }
+            $.get("airpollution_table_data", function (data) {
+                for (const [pollution_name, pollution_data] of Object.entries(data)) {
+                    for (const [country_iso, d] of Object.entries(pollution_data)) {
+                        let tr = $('<tr />')
+                        tr.append($('<th />', {text: pollution_name}))
+                        tr.append($('<td />', {text: country_iso}))
+                        tr.append($('<td />', {text: d.avg.toFixed(2)}))
+                        tr.append($('<td />', {text: d.min.toFixed(2)}))
+                        tr.append($('<td />', {text: d.max.toFixed(2)}))
+                        tr.append($('<td />', {text: d.limit}))
+                        tr.append($('<td />', {text: d.units}))
+                        $('#table-body').append(tr)
                     }
-                });
-            })
+                }
+                $('#our-table').DataTable();
+            });
 
-            $('#our-table').DataTable();
+            $.get("airpollution_visual_data1", function (data) {
+                for (const [chart_name, d] of Object.entries(data)) {
+                    let canvas = $('<canvas />').addClass('mb-3').attr('width', "400").attr("height", "350")
+                    $('#visuals-container').append(canvas)
+                    render_char1(canvas, chart_name, d.labels, d.datasets)
+                }
+            });
 
         })
     </script>
