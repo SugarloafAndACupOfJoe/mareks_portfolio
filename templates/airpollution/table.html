@@ -1,31 +1,36 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head %}
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 
-            <!-- Table-->
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
+    <!-- Table-->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
 
-                    <table id="our-table" class="table">
-                        <thead>
-                        <tr>
-                            <th scope="col">Pollutant</th>
-                            <th scope="col">Country</th>
-                            <th scope="col">Avg</th>
-                            <th scope="col">Min</th>
-                            <th scope="col">Max</th>
-                            <th scope="col">Limit</th>
-                            <th scope="col">Units</th>
-                        </tr>
-                        </thead>
-                        <tbody id="table-body">
+            <table id="our-table" class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Pollutant</th>
+                    <th scope="col">Country</th>
+                    <th scope="col">Avg</th>
+                    <th scope="col">Min</th>
+                    <th scope="col">Max</th>
+                    <th scope="col">Limit</th>
+                    <th scope="col">Units</th>
+                </tr>
+                </thead>
+                <tbody id="table-body">
 
-                        </tbody>
-                    </table>
+                </tbody>
+            </table>
 
-                </div>
-            </div>
+        </div>
+    </div>
 
 {% endblock %}
 

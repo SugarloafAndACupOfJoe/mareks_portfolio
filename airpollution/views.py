@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.db.models import Max, Min, Sum, Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -15,9 +16,6 @@ class ExcelUploadForm(forms.Form):
 
 
 def upload(request):
-    context = {
-        'app_name': request.resolver_match.app_name
-    }
     if request.method == 'GET':
         pass
     elif request.method == 'POST':
@@ -74,23 +72,20 @@ def upload(request):
 
                 PollutantEntry.objects.filter(year=year, pollutant=pollutant[0]).delete()
                 PollutantEntry.objects.bulk_create(to_insert)
-        context['message_success'] = 'File uploaded successfully!'
+        messages.success(request, 'File uploaded successfully!')
     else:
         return HttpResponse('This view only handles GET and POST requests')
 
-    return render(request, 'airpollution/upload.html', context)
+    return render(request, 'airpollution/upload.html')
 
 
 def table(request):
-    context = {
-        'app_name': request.resolver_match.app_name
-    }
-    return render(request, 'airpollution/table.html', context)
+    return render(request, 'airpollution/table.html')
 
 
 def charts(request):
     context = {
-        'app_name': request.resolver_match.app_name
+        'pollutant_list': [p.name for p in Pollutant.objects.all()]
     }
     return render(request, 'airpollution/charts.html', context)
 
@@ -261,13 +256,16 @@ def temp_country_creator(request):
     else:
         Country.objects.bulk_create(to_insert)
 
-    return redirect('airpollution:airpollution')
+    return redirect('airpollution:upload')
 
 
 def temp_add_colors_to_pollutants(request):
-    pollutants = ['PM2.5', 'PM10', 'NO2', 'O3', 'BaP', 'SO2']
-    colors = ['#dc5c5c', '#dc5cdb', '#5c63dc', '#5cdadc', '#66dc5c', '#dcdb5c']
-    to_insert = [Pollutant(name=pollutant, color=colors[i]) for i, pollutant in enumerate(pollutants)]
-    Pollutant.objects.bulk_update(to_insert, ['color'])
-
-    return redirect('airpollution:airpollution')
+    try:
+        pollutants = ['PM2.5', 'PM10', 'NO2', 'O3', 'BaP', 'SO2']
+        colors = ['#dc5c5c', '#dc5cdb', '#5c63dc', '#5cdadc', '#66dc5c', '#dcdb5c']
+        to_insert = [Pollutant(name=pollutant, color=colors[i]) for i, pollutant in enumerate(pollutants)]
+        Pollutant.objects.bulk_update(to_insert, ['color'])
+        messages.success(request, 'Colors added successfully!')
+    except Exception as e:
+        messages.error(request, e)
+    return redirect('airpollution:upload')
