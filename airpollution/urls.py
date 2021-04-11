@@ -4,7 +4,9 @@ from . import views
 app_name = 'airpollution'
 
 urlpatterns = [
-    path('', views.airpollution, name='airpollution'),
+    path('upload/', views.upload, name='upload'),
+    path('table/', views.table, name='table'),
+    path('charts/', views.charts, name='charts'),
     path('airpollution_table_data', views.airpollution_table_data, name='airpollution_table_data'),
     path('airpollution_visual_data1', views.airpollution_visual_data1, name='airpollution_visual_data1'),
     path('airpollution_visual_data2', views.airpollution_visual_data2, name='airpollution_visual_data2'),

@@ -10,3 +10,7 @@ def index(request):
         'app_name': request.resolver_match.app_name
     }
     return render(request, 'website/index.html', context)
+
+
+def samples(request):
+    return render(request, 'website/samples.html')
