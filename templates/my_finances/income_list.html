@@ -9,7 +9,7 @@
                 {% for income in object_list %}
                     <li>
                         <a href="{% url 'my_finances:income_detail' income.pk %}">
-                            {{ income.date|date }} - {{ income.get_type_display }} - ${{ income.value }} -
+                            {{ income.id }} - {{ income.date|date }} - {{ income.get_type_display }} - ${{ income.value }} -
                             Repetitive: {{ income.repetitive }}
                             {% if income.repetitive %}
                                 every {{ income.repetition_time }} {{ income.get_repetition_interval_display }}
