@@ -64,48 +64,54 @@
 
         <!-- Nav Item - Airpollution Collapse Menu -->
         <li class="nav-item{% if app_name == 'airpollution' %} active{% endif %}">
-            <a class="nav-link{% if app_name != 'airpollution' %} collapsed{% endif %}" href="#" data-toggle="collapse" data-target="#collapseOne"
+            <a class="nav-link{% if app_name != 'airpollution' %} collapsed{% endif %}" href="#" data-toggle="collapse"
+               data-target="#collapseOne"
                aria-expanded="true" aria-controls="collapseOne">
                 <i class="fas fa-fw fa-cog"></i>
                 <span>Airpollution App</span>
             </a>
-            <div id="collapseOne" class="collapse{% if app_name == 'airpollution' %} show{% endif %}" aria-labelledby="headingOne" data-parent="#accordionSidebar">
+            <div id="collapseOne" class="collapse{% if app_name == 'airpollution' %} show{% endif %}"
+                 aria-labelledby="headingOne" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">Upload data:</h6>
                     {% url 'airpollution:upload' as airpollution_upload %}
                     <a class="collapse-item{% if page_path == airpollution_upload %} active{% endif %}"
                        href="{{ airpollution_upload }}">Upload</a>
                     <h6 class="collapse-header">View data:</h6>
-                {% url 'airpollution:table' as airpollution_table %}
+                    {% url 'airpollution:table' as airpollution_table %}
                     <a class="collapse-item{% if page_path == airpollution_table %} active{% endif %}"
                        href="{{ airpollution_table }}">Table</a>
-                {% url 'airpollution:charts' as airpollution_charts %}
+                    {% url 'airpollution:charts' as airpollution_charts %}
                     <a class="collapse-item{% if page_path == airpollution_charts %} active{% endif %}"
                        href="{{ airpollution_charts }}">Charts</a>
                 </div>
             </div>
         </li>
 
-    <!-- Nav Item - My Finances Collapse Menu -->
-        <li class="nav-item{% if app_name == 'my_finances' %} active{% endif %}">
-            <a class="nav-link{% if app_name != 'my_finances' %} collapsed{% endif %}" href="#" data-toggle="collapse" data-target="#collapseTwo"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-cog"></i>
-                <span>My Finances App</span>
-            </a>
-            <div id="collapseTwo" class="collapse{% if app_name == 'my_finances' %} show{% endif %}" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">Update finances:</h6>
-                    {% url 'my_finances:income_create' as my_finances_income_create %}
-                    <a class="collapse-item{% if page_path == my_finances_income_create %} active{% endif %}"
-                       href="{{ my_finances_income_create }}">Add Income</a>
-                    <h6 class="collapse-header">View finances:</h6>
-                {% url 'my_finances:income_list' as my_finances_income_list %}
-                    <a class="collapse-item{% if page_path == my_finances_income_list %} active{% endif %}"
-                       href="{{ my_finances_income_list }}">List Income</a>
+        <!-- Nav Item - My Finances Collapse Menu -->
+        {% if user %}
+            <li class="nav-item{% if app_name == 'my_finances' %} active{% endif %}">
+                <a class="nav-link{% if app_name != 'my_finances' %} collapsed{% endif %}" href="#"
+                   data-toggle="collapse" data-target="#collapseTwo"
+                   aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>My Finances App</span>
+                </a>
+                <div id="collapseTwo" class="collapse{% if app_name == 'my_finances' %} show{% endif %}"
+                     aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Update finances:</h6>
+                        {% url 'my_finances:income_create' as my_finances_income_create %}
+                        <a class="collapse-item{% if page_path == my_finances_income_create %} active{% endif %}"
+                           href="{{ my_finances_income_create }}">Add Income</a>
+                        <h6 class="collapse-header">View finances:</h6>
+                        {% url 'my_finances:income_list' as my_finances_income_list %}
+                        <a class="collapse-item{% if page_path == my_finances_income_list %} active{% endif %}"
+                           href="{{ my_finances_income_list }}">List Income</a>
+                    </div>
                 </div>
-            </div>
-        </li>
+            </li>
+        {% endif %}
 
 
         <!-- Divider -->
@@ -299,33 +305,45 @@
 
                     <!-- Nav Item - User Information -->
                     <li class="nav-item dropdown no-arrow">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                            <img class="img-profile rounded-circle"
-                                 src="{% static 'img/undraw_profile.svg' %}">
-                        </a>
-                        <!-- Dropdown - User Information -->
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                             aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Profile
+                        {% if user %}
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ user.first_name }} {{ user.last_name }}</span>
+                                <img class="img-profile rounded-circle"
+                                     src="{% static 'img/undraw_profile.svg' %}">
                             </a>
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Settings
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Placeholder
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        {% else %}
+                            <a class="nav-link dropdown-toggle" href="#" id="authDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><i
+                                        class="far fa-user"></i></span>
                             </a>
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Activity Log
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Logout
-                            </a>
-                        </div>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="{% url 'accounts:register' %}">
+                                    <i class="fas fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Register
+                                </a>
+                                <a class="dropdown-item" href="{% url 'accounts:login' %}">
+                                    <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Login
+                                </a>
+                            </div>
+                        {% endif %}
                     </li>
 
                 </ul>
@@ -381,7 +399,7 @@
             <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="login.html">Logout</a>
+                <a class="btn btn-primary" href="{% url 'accounts:logout' %}">Logout</a>
             </div>
         </div>
     </div>
