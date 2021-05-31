@@ -101,15 +101,21 @@
                      aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Update finances:</h6>
+                        {% url 'my_finances:balance_create' as my_finances_balance_create %}
                         {% url 'my_finances:income_create' as my_finances_income_create %}
                         {% url 'my_finances:outcome_create' as my_finances_outcome_create %}
+                        <a class="collapse-item{% if page_path == my_finances_balance_create %} active{% endif %}"
+                           href="{{ my_finances_balance_create }}">Add Balance</a>
                         <a class="collapse-item{% if page_path == my_finances_income_create %} active{% endif %}"
                            href="{{ my_finances_income_create }}">Add Income</a>
                         <a class="collapse-item{% if page_path == my_finances_outcome_create %} active{% endif %}"
                            href="{{ my_finances_outcome_create }}">Add Outcome</a>
                         <h6 class="collapse-header">View finances:</h6>
+                        {% url 'my_finances:balance_list' as my_finances_balance_list %}
                         {% url 'my_finances:income_list' as my_finances_income_list %}
                         {% url 'my_finances:outcome_list' as my_finances_outcome_list %}
+                        <a class="collapse-item{% if page_path == my_finances_balance_list %} active{% endif %}"
+                           href="{{ my_finances_balance_list }}">List Balance</a>
                         <a class="collapse-item{% if page_path == my_finances_income_list %} active{% endif %}"
                            href="{{ my_finances_income_list }}">List Income</a>
                         <a class="collapse-item{% if page_path == my_finances_outcome_list %} active{% endif %}"

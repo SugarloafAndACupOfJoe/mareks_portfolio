@@ -10,14 +10,18 @@
                     <li>
                         {% if list_what == 'Income' %}
                             <a href="{% url 'my_finances:income_detail' object.pk %}">
-                        {% else %}
+                        {% elif list_what == 'Outcome' %}
                             <a href="{% url 'my_finances:outcome_detail' object.pk %}">
-
+                        {% elif list_what == 'Balance' %}
+                            <a href="{% url 'my_finances:balance_detail' object.pk %}">
                         {% endif %}
-                        {{ object.id }} - {{ object.date|date }} - {{ object.get_type_display }} - ${{ object.value }} -
-                        Repetitive: {{ object.repetitive }}
-                        {% if object.repetitive %}
-                            every {{ object.repetition_time }} {{ object.get_repetition_interval_display }}
+
+                        {{ object.id }} - {{ object.date|date }} - {{ object.get_type_display }} - ${{ object.value }}
+                        {% if list_what != 'Balance' %}
+                            - Repetitive: {{ object.repetitive }}
+                            {% if object.repetitive %}
+                                every {{ object.repetition_time }} {{ object.get_repetition_interval_display }}
+                            {% endif %}
                         {% endif %}
                         </a>
                     </li>

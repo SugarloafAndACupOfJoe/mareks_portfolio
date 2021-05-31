@@ -25,6 +25,7 @@ class Income(models.Model):
     repetition_interval = models.PositiveSmallIntegerField(choices=RInterval.choices, default=1)
     repetition_time = models.PositiveSmallIntegerField(default=0)
     comment = models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -61,6 +62,7 @@ class Outcome(models.Model):
     repetition_interval = models.PositiveSmallIntegerField(choices=RInterval.choices, default=1)
     repetition_time = models.PositiveSmallIntegerField(default=0)
     comment = models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -78,6 +80,8 @@ class Balance(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='balances')
     value = models.DecimalField(max_digits=10, decimal_places=2)
     type = models.PositiveSmallIntegerField(choices=BType.choices)
+    date = models.DateField()
+    comment = models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
