@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 
 {% block content %}
     <div class="row">
         <div class="col-lg-8 mx-auto">
 
+            <h1>{{ delete_what }} {{ object.pk }}</h1>
+
             <form method="post">{% csrf_token %}
-                {{ form|crispy }}
-                <input type="submit" value="Submit">
+                <p>Are you sure you want to delete "{{ object }}"?</p>
+                <input type="submit" value="Confirm">
             </form>
 
         </div>
