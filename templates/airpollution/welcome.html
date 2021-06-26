@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- Upload File Section-->
+    <section class="page-section mt-5" id="import-form">
+        <div class="container">
+            <!-- Heading-->
+            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Upload File</h2>
+            <!-- Icon Divider-->
+            <div class="divider-custom">
+                <div class="divider-custom-line"></div>
+                <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                <div class="divider-custom-line"></div>
+            </div>
+            <!-- Upload File Section Form-->
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+
+                    <form id="upload-file" name="upload-file" enctype="multipart/form-data" method="POST"
+                          action="{% url 'airpollution:airpollution' %}">
+                        {% csrf_token %}
+                        <div class="control-group">
+                            <div class="form-group floating-label-form-group controls mb-0 pb-2">
+                                <label>Year</label>
+                                <input class="form-control" id="year" name="year" type="number" placeholder="Year"
+                                       required="required" data-validation-required-message=""/>
+                                <p class="help-block text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <div class="form-group floating-label-form-group controls mb-0 pb-2">
+                                <label>File</label>
+                                <input class="form-control" id="file" name="file" type="file" required="required"
+                                       data-validation-required-message=""/>
+                                <p class="help-block text-danger"></p>
+                            </div>
+                        </div>
+                        <br/>
+
+                        <div id="success">{{ message_success }}</div>
+                        <div class="form-group">
+                            <button class="btn btn-primary btn-xl" id="upload" type="submit">Upload</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Table Section-->
+    <section class="page-section mt-5" id="data-table">
+        <div class="container">
+            <!-- Heading-->
+            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Data Table</h2>
+            <!-- Icon Divider-->
+            <div class="divider-custom">
+                <div class="divider-custom-line"></div>
+                <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                <div class="divider-custom-line"></div>
+            </div>
+            <!-- Table-->
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+
+                    <table id="our-table" class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Pollutant</th>
+                            <th scope="col">Country</th>
+                            <th scope="col">Avg</th>
+                            <th scope="col">Min</th>
+                            <th scope="col">Max</th>
+                            <th scope="col">Limit</th>
+                            <th scope="col">Units</th>
+                        </tr>
+                        </thead>
+                        <tbody id="table-body">
+
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visuals Section-->
+    <section class="page-section mt-5" id="data-visuals">
+        <div class="container">
+            <!-- Heading-->
+            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Data Visuals</h2>
+            <!-- Icon Divider-->
+            <div class="divider-custom">
+                <div class="divider-custom-line"></div>
+                <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                <div class="divider-custom-line"></div>
+            </div>
+            <!-- Visuals-->
+            <div class="row">
+                <div id="visuals-container" class="col-lg-8 mx-auto">
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <select class="form-control" id="chart2-summary-type">
+                                <option value="max">Maximum</option>
+                                <option value="min">Minimum</option>
+                                <option value="avg">Average</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <select class="form-control" id="chart2-pollutant">
+                                {% for pollutant in pollutant_list %}
+                                <option value={{ pollutant }}>{{ pollutant }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                <div id="chart2"></div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        function renderChart(chart_type, canvas, name, labels, datasets) {
+            let scales = {}
+            if (chart_type === 'bar') {
+                scales = {
+                    xAxes: [{
+                        stacked: true,
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                }
+            } else if (chart_type === 'line') {
+                scales = {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Month'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+            myChart = new Chart(canvas, {
+                type: chart_type,
+                data: {'labels': labels, 'datasets': datasets},
+                options: {
+                    title: {
+                        display: true,
+                        text: name
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                        position: 'nearest'
+                    },
+                    responsive: true,
+                    scales: scales
+                }
+            });
+        }
+
+        $(document).ready(function () {
+
+            $.get("airpollution_table_data", function (data) {
+                for (const [pollution_name, pollution_data] of Object.entries(data)) {
+                    for (const [country_iso, d] of Object.entries(pollution_data)) {
+                        let tr = $('<tr />')
+                        tr.append($('<th />', {text: pollution_name}))
+                        tr.append($('<td />', {text: country_iso}))
+                        tr.append($('<td />', {text: d.avg.toFixed(2)}))
+                        tr.append($('<td />', {text: d.min.toFixed(2)}))
+                        tr.append($('<td />', {text: d.max.toFixed(2)}))
+                        tr.append($('<td />', {text: d.limit}))
+                        tr.append($('<td />', {text: d.units}))
+                        $('#table-body').append(tr)
+                    }
+                }
+                $('#our-table').DataTable();
+            });
+
+            $.get("airpollution_visual_data1", function (data) {
+                for (const [chart_name, d] of Object.entries(data)) {
+                    let canvas = $('<canvas />').addClass('mb-3').attr('width', "400").attr("height", "350")
+                    $('#visuals-container').append(canvas)
+                    renderChart('bar', canvas, chart_name, d.labels, d.datasets)
+                }
+            });
+
+            let loadChart2 = function (summary_type, pollutants) {
+                $.get(`airpollution_visual_data2?summary_type=${summary_type}&pollutant=${pollutants}`, function (data) {
+                    let canvas = $('<canvas />').addClass('mb-3').attr('width', "400").attr("height", "350")
+                    $('#chart2').html(canvas)
+                    renderChart('line', canvas, data.name, data.labels, data.datasets)
+                });
+            }
+
+            loadChart2('max', 'PM10')
+            $('#chart2-summary-type, #chart2-pollutant').on('change', function() {
+                let summary_type = $('#chart2-summary-type').val()
+                let pollutant = $('#chart2-pollutant').val()
+                loadChart2(summary_type, pollutant)
+            })
+
+
+        })
+    </script>
+
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Visuals-->
+    <div class="row">
+        <div id="visuals-container" class="col-lg-8 mx-auto">
+
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <select class="form-control" id="chart2-summary-type">
+                        <option value="max">Maximum</option>
+                        <option value="min">Minimum</option>
+                        <option value="avg">Average</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-6">
+                    <select class="form-control" id="chart2-pollutant">
+                        {% for pollutant in pollutant_list %}
+                            <option value={{ pollutant }}>{{ pollutant }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div id="chart2"></div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+
+    <script>
+        function renderChart(chart_type, canvas, name, labels, datasets) {
+            let scales = {}
+            if (chart_type === 'bar') {
+                scales = {
+                    xAxes: [{
+                        stacked: true,
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                }
+            } else if (chart_type === 'line') {
+                scales = {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Month'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+            myChart = new Chart(canvas, {
+                type: chart_type,
+                data: {'labels': labels, 'datasets': datasets},
+                options: {
+                    title: {
+                        display: true,
+                        text: name
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                        position: 'nearest'
+                    },
+                    responsive: true,
+                    scales: scales
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $.get("/airpollution/airpollution_visual_data1", function (data) {
+                for (const [chart_name, d] of Object.entries(data)) {
+                    let canvas = $('<canvas />').addClass('mb-3').attr('width', "400").attr("height", "350")
+                    $('#visuals-container').append(canvas)
+                    renderChart('bar', canvas, chart_name, d.labels, d.datasets)
+                }
+            });
+
+            let loadChart2 = function (summary_type, pollutants) {
+                $.get(`/airpollution/airpollution_visual_data2?summary_type=${summary_type}&pollutant=${pollutants}`, function (data) {
+                    let canvas = $('<canvas />').addClass('mb-3').attr('width', "400").attr("height", "350")
+                    $('#chart2').html(canvas)
+                    renderChart('line', canvas, data.name, data.labels, data.datasets)
+                });
+            }
+
+            loadChart2('max', 'PM10')
+            $('#chart2-summary-type, #chart2-pollutant').on('change', function () {
+                let summary_type = $('#chart2-summary-type').val()
+                let pollutant = $('#chart2-pollutant').val()
+                loadChart2(summary_type, pollutant)
+            })
+        })
+    </script>
+{% endblock %}

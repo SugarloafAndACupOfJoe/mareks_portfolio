@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <!-- Table-->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+
+            <table id="our-table" class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Pollutant</th>
+                    <th scope="col">Country</th>
+                    <th scope="col">Avg</th>
+                    <th scope="col">Min</th>
+                    <th scope="col">Max</th>
+                    <th scope="col">Limit</th>
+                    <th scope="col">Units</th>
+                </tr>
+                </thead>
+                <tbody id="table-body">
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.get("/airpollution/airpollution_table_data", function (data) {
+                for (const [pollution_name, pollution_data] of Object.entries(data)) {
+                    for (const [country_iso, d] of Object.entries(pollution_data)) {
+                        let tr = $('<tr />')
+                        tr.append($('<th />', {text: pollution_name}))
+                        tr.append($('<td />', {text: country_iso}))
+                        tr.append($('<td />', {text: d.avg.toFixed(2)}))
+                        tr.append($('<td />', {text: d.min.toFixed(2)}))
+                        tr.append($('<td />', {text: d.max.toFixed(2)}))
+                        tr.append($('<td />', {text: d.limit}))
+                        tr.append($('<td />', {text: d.units}))
+                        $('#table-body').append(tr)
+                    }
+                }
+                $('#our-table').DataTable();
+            });
+        })
+    </script>
+{% endblock %}
