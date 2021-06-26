@@ -23,7 +23,6 @@ class IncomeListView(ListView):
 
     def get_queryset(self):
         user = self.request.user
-        print("I'm silly")
         return Income.objects.filter(user=user)
     # context_object_name = 'income_list'
     # allow_empty = True
