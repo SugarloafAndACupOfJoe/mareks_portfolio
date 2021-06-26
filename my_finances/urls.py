@@ -24,4 +24,7 @@ urlpatterns = [
     path('balance_create/', views.BalanceCreatView.as_view(), name='balance_create'),
     path('balance_update/<pk>', views.BalanceUpdateView.as_view(), name='balance_update'),
     path('balance_delete/<pk>', views.BalanceDeleteView.as_view(), name='balance_delete'),
+
+    path('current_finances/', views.current_finances, name='current_finances'),
+    path('finance_history/', views.finance_history, name='finance_history'),
 ]

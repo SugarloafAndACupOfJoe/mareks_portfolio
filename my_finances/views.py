@@ -1,12 +1,15 @@
-from datetime import datetime
+from datetime import date
 from django.contrib import messages
+from django.db.models import Sum
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from my_finances.forms import IncomeForm, OutcomeForm, BalanceForm
+from my_finances.helpers import calculate_repetitive_total
 from my_finances.models import Income, Outcome, Balance
 
 
@@ -232,3 +235,40 @@ class BalanceDeleteView(DeleteView):
     def get_success_url(self):
         messages.success(self.request, 'Balance deleted successfully!')
         return reverse_lazy('my_finances:balance_list')
+
+
+def current_finances(request):
+    last_balance = Balance.objects.filter(user=request.user, type=1).order_by('-date').first()
+    if not last_balance:
+        messages.warning(request, 'No current balance has been recorded. '
+                                  'Please add at least one current balance record.')
+        return render(request, 'my_finances/current_finances.html')
+
+    today = date.today()
+    # initialise totals with sums of non repetitive incomes and outcomes
+    total_income = Income.objects\
+        .filter(user=request.user, date__gte=last_balance.date, date__lte=today, repetitive=False)\
+        .aggregate(total=Sum('value'))['total']
+    total_income = 0 if total_income is None else total_income
+    total_outcome = Outcome.objects\
+        .filter(user=request.user, date__gte=last_balance.date, date__lte=today,  repetitive=False)\
+        .aggregate(total=Sum('value'))['total']
+    total_outcome = 0 if total_outcome is None else total_outcome
+
+    # updated totals with repetitive
+    for income in Income.objects.filter(user=request.user, repetitive=True):
+        total_income += calculate_repetitive_total(income, last_balance, today)
+    for outcome in Outcome.objects.filter(user=request.user, repetitive=True):
+        total_outcome += calculate_repetitive_total(outcome, last_balance, today)
+
+    context = {
+        'last_balance': last_balance,
+        'estimated_balance': last_balance.value + total_income - total_outcome,
+        'total_income': total_income,
+        'total_outcome': total_outcome
+    }
+    return render(request, 'my_finances/current_finances.html', context=context)
+
+
+def finance_history(request):
+    return render(request, 'my_finances/finance_history.html')
