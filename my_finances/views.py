@@ -14,8 +14,6 @@ from my_finances.models import Income, Outcome, Balance
 
 
 class IncomeListView(ListView):
-    # Marek is the best
-    # Yes he is!
     model = Income
     paginate_by = 100
     template_name = 'my_finances/balance_income_outcome_list.html'
