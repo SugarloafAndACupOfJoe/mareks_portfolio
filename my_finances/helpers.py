@@ -19,6 +19,8 @@ def add_interval_to_date(original_date, days_or_months, value):
         return original_date + timedelta(days=value)
     elif days_or_months == 'months':
         y, m = divmod(original_date.month + value, 12)
+        if m == 0:
+            m = original_date.month
         y += original_date.year
         d = original_date.day
         return date(y, m, d)
@@ -26,7 +28,7 @@ def add_interval_to_date(original_date, days_or_months, value):
         raise Exception('add_interval_to_date accepts only str "days" or "months" for days_or_months')
 
 
-def calculate_repetitive_total(obj, last_balance, today):
+def calculate_repetitive_total(obj, last_balance, today, result_dict=None):
     total = 0
     repetition_time = obj.repetition_time
     if obj.repetition_interval == 2:  # DAYS
@@ -49,9 +51,13 @@ def calculate_repetitive_total(obj, last_balance, today):
         no_of_intervals_before = int(balance_to_obj_time / repetition_time)
         check_date = add_interval_to_date(obj.date, days_or_months, repetition_time * no_of_intervals_before)
 
-    while last_balance.date > check_date:
+    while last_balance.date >= check_date:
         check_date = add_interval_to_date(check_date, days_or_months, repetition_time)
     while check_date <= today:
-        total += obj.value
+        if result_dict is None:
+            total += obj.value
+        else:
+            result_dict[str(check_date)] = obj.value if str(check_date) not in result_dict \
+                else result_dict[str(check_date)] + obj.value
         check_date = add_interval_to_date(check_date, days_or_months, repetition_time)
-    return total
+    return total if result_dict is None else result_dict
