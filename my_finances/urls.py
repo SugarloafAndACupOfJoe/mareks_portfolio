@@ -25,12 +25,13 @@ urlpatterns = [
     path('balance_update/<pk>', views.BalanceUpdateView.as_view(), name='balance_update'),
     path('balance_delete/<pk>', views.BalanceDeleteView.as_view(), name='balance_delete'),
 
-    path('current_finances/', views.current_finances, name='current_finances'),
-    path('current_finances/get_summary_tiles/', views.current_finances_get_summary_tiles,
-         name='current_finances_get_summary_tiles'),
-    path('current_finances/get_year_chart/', views.current_finances_get_year_chart,
-         name='current_finances_get_year_chart'),
-    path('current_finances/get_income_or_outcome_by_type/', views.current_finances_get_income_or_outcome_by_type,
-         name='current_finances_get_income_or_outcome_by_type'),
-    path('finance_history/', views.finance_history, name='finance_history'),
+    path('current_period/', views.current_period, name='current_period'),
+    path('year_overview/', views.year_overview, name='year_overview'),
+
+    path('get_summary_tiles/', views.get_summary_tiles,
+         name='get_summary_tiles'),
+    path('get_year_chart/', views.get_year_chart,
+         name='get_year_chart'),
+    path('get_income_or_outcome_by_type/', views.get_income_or_outcome_by_type,
+         name='get_income_or_outcome_by_type'),
 ]

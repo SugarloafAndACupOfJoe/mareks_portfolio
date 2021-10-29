@@ -6,6 +6,9 @@
             <h1>{{ detail_what }} {{ object.pk }}</h1>
             <ul>
                 <li>Date: {{ object.date|date }}</li>
+                {% if object.repetition_end %}
+                    <li>End: {{ object.repetition_end|date }}</li>
+                {% endif %}
                 <li>Type: {{ object.get_type_display }}</li>
                 <li>Value: ${{ object.value }}</li>
                 {% if detail_what != 'Balance' %}

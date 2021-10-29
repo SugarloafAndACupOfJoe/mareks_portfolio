@@ -9,6 +9,7 @@ class Income(models.Model):
         BON = 2, "BONUS"
         GIF = 3, "GIFT"
         OTH = 4, "OTHER"
+        SAV = 5, "SAVINGS"
 
     class RInterval(models.IntegerChoices):
         NA = 1, 'N/A'
@@ -24,6 +25,7 @@ class Income(models.Model):
     repetitive = models.BooleanField(default=False)
     repetition_interval = models.PositiveSmallIntegerField(choices=RInterval.choices, default=1)
     repetition_time = models.PositiveSmallIntegerField(default=0)
+    repetition_end = models.DateField(null=True)
     comment = models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -46,6 +48,7 @@ class Outcome(models.Model):
         FUN = 7, "FUN"
         CLO = 8, "CLOTHES"
         CHA = 9, "CHARITY"
+        SAV = 10, "SAVINGS"
 
     class RInterval(models.IntegerChoices):
         NA = 1, 'N/A'
@@ -61,6 +64,7 @@ class Outcome(models.Model):
     repetitive = models.BooleanField(default=False)
     repetition_interval = models.PositiveSmallIntegerField(choices=RInterval.choices, default=1)
     repetition_time = models.PositiveSmallIntegerField(default=0)
+    repetition_end = models.DateField(null=True)
     comment = models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)

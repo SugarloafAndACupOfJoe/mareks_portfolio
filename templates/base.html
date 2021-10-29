@@ -101,12 +101,12 @@
                      aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Dashboards:</h6>
-                        {% url 'my_finances:current_finances' as my_finances_current_finances %}
-                        {% url 'my_finances:finance_history' as my_finances_finance_history %}
-                        <a class="collapse-item{% if page_path == my_finances_current_finances %} active{% endif %}"
-                           href="{{ my_finances_current_finances }}">Current Finances</a>
-                        <a class="collapse-item{% if page_path == my_finances_finance_history %} active{% endif %}"
-                           href="{{ my_finances_finance_history }}">Finance History</a>
+                        {% url 'my_finances:current_period' as my_finances_current_period %}
+                        {% url 'my_finances:year_overview' as my_finances_year_overview %}
+                        <a class="collapse-item{% if page_path == my_finances_current_period %} active{% endif %}"
+                           href="{{ my_finances_current_period }}">Current Period</a>
+                        <a class="collapse-item{% if page_path == my_finances_year_overview %} active{% endif %}"
+                           href="{{ my_finances_year_overview }}">Year Overview</a>
 
                         <h6 class="collapse-header">Update records:</h6>
                         {% url 'my_finances:balance_create' as my_finances_balance_create %}

@@ -20,7 +20,8 @@ def add_interval_to_date(original_date, days_or_months, value):
     elif days_or_months == 'months':
         y, m = divmod(original_date.month + value, 12)
         if m == 0:
-            m = original_date.month
+            m = 12
+            y = y - 1
         y += original_date.year
         d = original_date.day
         return date(y, m, d)
@@ -28,9 +29,10 @@ def add_interval_to_date(original_date, days_or_months, value):
         raise Exception('add_interval_to_date accepts only str "days" or "months" for days_or_months')
 
 
-def calculate_repetitive_total(obj, last_balance, today, result_dict=None):
+def calculate_repetitive_total(obj, last_balance_date, today, result_dict=None):
     total = 0
     repetition_time = obj.repetition_time
+    end = obj.repetition_end if obj.repetition_end else today
     if obj.repetition_interval == 2:  # DAYS
         days_or_months = 'days'
     elif obj.repetition_interval == 3:  # WEEKS
@@ -44,16 +46,16 @@ def calculate_repetitive_total(obj, last_balance, today, result_dict=None):
     else:
         raise Exception('calculate_repetitive_total object repetition_interval can be only between 2 to 5 incl.')
 
-    balance_to_obj_time = calculate_interval_between_dates(obj.date, last_balance.date, days_or_months)
+    balance_to_obj_time = calculate_interval_between_dates(obj.date, last_balance_date, days_or_months)
     if balance_to_obj_time <= 0:
         check_date = obj.date
     else:
         no_of_intervals_before = int(balance_to_obj_time / repetition_time)
         check_date = add_interval_to_date(obj.date, days_or_months, repetition_time * no_of_intervals_before)
 
-    while last_balance.date >= check_date:
+    while last_balance_date >= check_date:
         check_date = add_interval_to_date(check_date, days_or_months, repetition_time)
-    while check_date <= today:
+    while check_date <= end:
         if result_dict is None:
             total += obj.value
         else:
