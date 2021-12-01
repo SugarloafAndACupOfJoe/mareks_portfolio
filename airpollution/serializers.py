@@ -16,7 +16,7 @@ class CountrySerializer(serializers.ModelSerializer):
     # C
     def create(self, validated_data):
         # Do something with dupa, but make sure you remove it from validated_data dict!
-        del validated_data['dupa']
+        # del validated_data['dupa']
         return super().create(validated_data)
 
     # U
