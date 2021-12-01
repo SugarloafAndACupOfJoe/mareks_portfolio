@@ -1,13 +1,14 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .apis import PollutantViewSet
+from .apis import CountryViewSet, PollutantViewSet
 
 
 router = routers.DefaultRouter()
-router.register('', PollutantViewSet)
+router.register('pollutant', PollutantViewSet)
+router.register('country', CountryViewSet)
 
 
 urlpatterns = [
-    path('pollutant/', include(router.urls)),
+    path('', include(router.urls)),
 ]
