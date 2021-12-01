@@ -5,9 +5,9 @@ from .models import Country, Pollutant
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
-        fields = ('iso_code', 'name', 'color', 'removed', 'longitude', 'latitude', 'altitude', 'dupa')
+        fields = ('iso_code', 'name', 'color', 'removed', 'longitude', 'latitude', 'altitude')
 
-    dupa = serializers.CharField(max_length=10)
+    # dupa = serializers.CharField(max_length=10)
 
     # C / U
     def save(self, **kwargs):
