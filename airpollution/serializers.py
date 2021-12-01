@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Pollutant
+from .models import Country, Pollutant
+
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ('iso_code', 'name', 'color', 'removed', 'longitude', 'latitude', 'altitude')
 
 
 class PollutantSerializer(serializers.ModelSerializer):
