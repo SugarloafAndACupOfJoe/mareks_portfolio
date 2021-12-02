@@ -7,16 +7,12 @@ class CountrySerializer(serializers.ModelSerializer):
         model = Country
         fields = ('iso_code', 'name', 'color', 'removed', 'longitude', 'latitude', 'altitude')
 
-    # dupa = serializers.CharField(max_length=10)
-
     # C / U
     def save(self, **kwargs):
         return super().save(**kwargs)
 
     # C
     def create(self, validated_data):
-        # Do something with dupa, but make sure you remove it from validated_data dict!
-        # del validated_data['dupa']
         return super().create(validated_data)
 
     # U
