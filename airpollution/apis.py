@@ -48,7 +48,7 @@ class CountryViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         # Example
         # return super().destroy(request, *args, **kwargs)
-        return Response({"error": "updates are not allowed via API"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "deletions are not allowed via API"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PollutantViewSet(viewsets.ModelViewSet):
