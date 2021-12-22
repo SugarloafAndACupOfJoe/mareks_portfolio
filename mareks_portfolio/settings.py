@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'airpollution',
+    'frontend',
     'my_finances',
     'website',
 ]
